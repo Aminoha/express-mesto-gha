@@ -42,7 +42,7 @@ const getUserById = (req, res) => {
 const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.status(201).send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(ERROR_INACCURATE_DATA).send({
@@ -56,16 +56,12 @@ const createUser = (req, res) => {
     });
 };
 
-const updateUserInfo = (req, res) => {
-  const { name, about } = req.body;
-  User.findByIdAndUpdate(
-    req.user._id,
-    { name, about },
-    {
-      new: true, // обработчик then получит на вход обновлённую запись
-      runValidators: true, // данные будут валидированы перед изменением
-    },
-  )
+const updateUser = (req, res) => {
+  const { name, about, avatar } = req.body;
+  User.findByIdAndUpdate(req.user._id, avatar ? { avatar } : { name, about }, {
+    new: true, // обработчик then получит на вход обновлённую запись
+    runValidators: true, // данные будут валидированы перед изменением
+  })
     .orFail(() => {
       throw new Error('NotFound');
     })
@@ -77,42 +73,9 @@ const updateUserInfo = (req, res) => {
           .send({ message: 'Пользователь с указанным _id не найден' });
         return;
       }
-      if (err.name === 'ValidationError') {
+      if (err.name === 'CastError') {
         res.status(ERROR_INACCURATE_DATA).send({
-          message: 'Переданы некорректные данные при обновлении профиля',
-        });
-        return;
-      }
-      res
-        .status(ERROR_INTERNAL_SERVER)
-        .send({ message: 'На сервере произошла ошибка' });
-    });
-};
-
-const updateUserAvatar = (req, res) => {
-  const { avatar } = req.body;
-  User.findByIdAndUpdate(
-    req.user._id,
-    { avatar },
-    {
-      new: true, // обработчик then получит на вход обновлённую запись
-      runValidators: true, // данные будут валидированы перед изменением
-    },
-  )
-    .orFail(() => {
-      throw new Error('NotFound');
-    })
-    .then((user) => res.send({ data: user }))
-    .catch((err) => {
-      if (err.message === 'NotFound') {
-        res
-          .status(ERROR_NOT_FOUND)
-          .send({ message: 'Пользователь с указанным _id не найден' });
-        return;
-      }
-      if (err.name === 'ValidationError') {
-        res.status(ERROR_INACCURATE_DATA).send({
-          message: 'Переданы некорректные данные при обновлении аватара',
+          message: 'Переданы некорректные данные при обновлении данных профиля',
         });
         return;
       }
@@ -126,6 +89,5 @@ module.exports = {
   getUsers,
   getUserById,
   createUser,
-  updateUserInfo,
-  updateUserAvatar,
+  updateUser,
 };
