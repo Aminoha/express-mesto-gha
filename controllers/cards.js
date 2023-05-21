@@ -32,10 +32,10 @@ const createCard = (req, res) => {
 
 const deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
-    .then((card) => res.send({ data: card }))
+    .then(() => res.send({ message: 'Карточка удаелена' }))
     .catch(() => res
       .status(ERROR_NOT_FOUND)
-      .send({ message: 'Карточка удалена' }));
+      .send({ message: 'Карточка с указанным _id не найдена' }));
 };
 
 const likeCard = (req, res) => {
