@@ -27,6 +27,12 @@ const getUserById = (req, res) => {
           .send({ message: 'Пользователь по указанному _id не найден' });
         return;
       }
+      if (err.name === 'CastError') {
+        res.status(ERROR_INACCURATE_DATA).send({
+          message: 'Некорректный id пользователя',
+        });
+        return;
+      }
       res
         .status(ERROR_INTERNAL_SERVER)
         .send({ message: 'На сервере произошла ошибка' });

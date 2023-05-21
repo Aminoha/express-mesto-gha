@@ -55,9 +55,9 @@ const likeCard = (req, res) => {
           .send({ message: 'Передан несуществующий _id карточки' });
         return;
       }
-      if (err.name === 'ValidationError') {
+      if (err.name === 'CastError') {
         res.status(ERROR_INACCURATE_DATA).send({
-          message: 'Переданы некорректные данные для постановки лайка',
+          message: 'Передан некорректный _id карточки',
         });
         return;
       }
@@ -84,9 +84,9 @@ const dislikeCard = (req, res) => {
           .send({ message: 'Передан несуществующий _id карточки' });
         return;
       }
-      if (err.name === 'ValidationError') {
+      if (err.name === 'CastError') {
         res.status(ERROR_INACCURATE_DATA).send({
-          message: 'Переданы некорректные данные для снятии лайка',
+          message: 'Передан некорректный _id карточки',
         });
         return;
       }
