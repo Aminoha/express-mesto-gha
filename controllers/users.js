@@ -73,7 +73,7 @@ const updateUser = (req, res) => {
           .send({ message: 'Пользователь с указанным _id не найден' });
         return;
       }
-      if (err.name === 'CastError') {
+      if (err.name === 'ValidationError') {
         res.status(ERROR_INACCURATE_DATA).send({
           message: 'Переданы некорректные данные при обновлении данных профиля',
         });
