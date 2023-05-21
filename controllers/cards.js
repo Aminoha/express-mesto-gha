@@ -35,7 +35,7 @@ const deleteCard = (req, res) => {
     .then((card) => res.send({ data: card }))
     .catch(() => res
       .status(ERROR_NOT_FOUND)
-      .send({ message: 'Карточка с указанным _id не найдена' }));
+      .send({ message: 'Карточка удалена' }));
 };
 
 const likeCard = (req, res) => {
