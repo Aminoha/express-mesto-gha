@@ -32,10 +32,28 @@ const createCard = (req, res) => {
 
 const deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
-    .then(() => res.send({ message: 'Карточка удаелена' }))
-    .catch(() => res
-      .status(ERROR_NOT_FOUND)
-      .send({ message: 'Карточка с указанным _id не найдена' }));
+    .orFail(() => {
+      throw new Error('NotFound');
+    })
+    .then(() => res.send({ message: 'Карточка удалена' }))
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(ERROR_INACCURATE_DATA).send({
+          message: 'Некорректный id карточки',
+        });
+        return;
+      }
+
+      if (err.message === 'NotFound') {
+        res
+          .status(ERROR_NOT_FOUND)
+          .send({ message: 'Карточка с указанным _id не найдена' });
+        return;
+      }
+      res
+        .status(ERROR_INTERNAL_SERVER)
+        .send({ message: 'На сервере произошла ошибка' });
+    });
 };
 
 const likeCard = (req, res) => {
