@@ -3,19 +3,23 @@ const {
   ERROR_INACCURATE_DATA,
   ERROR_NOT_FOUND,
   ERROR_INTERNAL_SERVER,
+  ERROR_NOT_PERMISSION,
 } = require('../utils/errors/errors');
 
 const getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch(() => res
-      .status(ERROR_INTERNAL_SERVER)
-      .send({ message: 'На сервере произошла ошибка' }));
+    .catch(() =>
+      res
+        .status(ERROR_INTERNAL_SERVER)
+        .send({ message: 'На сервере произошла ошибка' })
+    );
 };
 
 const createCard = (req, res) => {
   const { name, link } = req.body;
-  Card.create({ name, link, owner: req.user._id })
+  const owner = req.user._id;
+  Card.create({ name, link, owner })
     .then((card) => res.status(201).send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -31,11 +35,21 @@ const createCard = (req, res) => {
 };
 
 const deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId)
-    .orFail(() => {
-      throw new Error('NotFound');
+  Card.findById(req.params.cardId)
+    .then((card) => {
+      if (!card) {
+        throw new Error('NotFound');
+      }
+      if (card.owner.toString() !== req.user._id) {
+        throw new Error('NotPermission');
+      }
+
+      Card.findByIdAndRemove(req.params.cardId)
+        .orFail(() => {
+          throw new Error('NotFound');
+        })
+        .then(() => res.send({ message: 'Карточка удалена' }));
     })
-    .then(() => res.send({ message: 'Карточка удалена' }))
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(ERROR_INACCURATE_DATA).send({
@@ -50,6 +64,13 @@ const deleteCard = (req, res) => {
           .send({ message: 'Карточка с указанным _id не найдена' });
         return;
       }
+
+      if (err.message === 'NotPermission') {
+        res.status(ERROR_NOT_PERMISSION).send({
+          message: 'Нет прав на удаление чужой картчоки',
+        });
+        return;
+      }
       res
         .status(ERROR_INTERNAL_SERVER)
         .send({ message: 'На сервере произошла ошибка' });
@@ -60,7 +81,7 @@ const likeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
-    { new: true },
+    { new: true }
   )
     .orFail(() => {
       throw new Error('NotFound');
@@ -89,7 +110,7 @@ const dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
-    { new: true },
+    { new: true }
   )
     .orFail(() => {
       throw new Error('NotFound');
