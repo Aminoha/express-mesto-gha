@@ -20,7 +20,6 @@ const login = (req, res, next) => {
       });
       res.send({ _id: token });
     })
-
     .catch((err) => {
       throw new Unauthorized(err.message);
     })
@@ -39,31 +38,10 @@ const getCurrentUser = (req, res, next) => {
     .catch(next);
 };
 
-// if (err.message === 'NotFound') {
-//   res
-//     .status(ERROR_NOT_FOUND)
-//     .send({ message: 'Пользователь по указанному _id не найден' });
-//   return;
-// }
-// if (err.name === 'CastError') {
-//   res.status(ERROR_INACCURATE_DATA).send({
-//     message: 'Некорректный id пользователя',
-//   });
-//   return;
-// }
-// res
-//   .status(ERROR_INTERNAL_SERVER)
-//   .send({ message: 'На сервере произошла ошибка' });
-
 const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
     .catch(next);
-  // .catch(() =>
-  //   res
-  //     .status(ERROR_INTERNAL_SERVER)
-  //     .send({ message: 'На сервере произошла ошибка' })
-  // );
 };
 
 const getUserById = (req, res, next) => {
@@ -72,30 +50,12 @@ const getUserById = (req, res, next) => {
       throw new NotFound('Пользователь по указанному _id не найден');
     })
     .then((user) => res.send({ data: user }))
-
     .catch((err) => {
       if (err.name === 'CastError') {
         return next(new InaccurateData('Некорректный id пользователя'));
       }
       return next(err);
     });
-  // .catch((err) => {
-  //   if (err.message === 'NotFound') {
-  //     res
-  //       .status(ERROR_NOT_FOUND)
-  //       .send({ message: 'Пользователь по указанному _id не найден' });
-  //     return;
-  //   }
-  //   if (err.name === 'CastError') {
-  //     res.status(ERROR_INACCURATE_DATA).send({
-  //       message: 'Некорректный id пользователя',
-  //     });
-  //     return;
-  //   }
-  //   res
-  //     .status(ERROR_INTERNAL_SERVER)
-  //     .send({ message: 'На сервере произошла ошибка' });
-  // });
 };
 
 const createUser = (req, res, next) => {
