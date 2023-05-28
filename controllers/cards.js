@@ -38,7 +38,7 @@ const deleteCard = (req, res, next) => {
         throw new NotPermission('Нет прав на удаление чужой картчоки');
       }
 
-      Card.findByIdAndRemove(req.params.cardId).then(() => res.send({ message: 'Карточка удалена' }));
+      Card.findByIdAndRemove(req.params.cardId).then(() => res.send({ message: 'Карточка удалена' })).catch(next);
     })
     .catch((err) => {
       if (err.name === 'CastError') {

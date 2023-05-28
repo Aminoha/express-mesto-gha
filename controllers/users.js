@@ -4,7 +4,6 @@ const User = require('../models/user');
 const { SECRET_KEY } = require('../utils/constants');
 
 const {
-  Unauthorized,
   InaccurateData,
   Conflict,
   NotFound,
@@ -20,9 +19,6 @@ const login = (req, res, next) => {
       });
       res.send({ _id: token });
     })
-    .catch((err) => {
-      throw new Unauthorized(err.message);
-    })
     .catch(next);
 };
 
@@ -32,9 +28,6 @@ const getCurrentUser = (req, res, next) => {
       throw new NotFound('Пользователь по указанному _id не найден');
     })
     .then((user) => res.send({ data: user }))
-    .catch(() => {
-      throw new NotFound('Пользователь по указанному _id не найден');
-    })
     .catch(next);
 };
 
