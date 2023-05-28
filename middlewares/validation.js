@@ -27,7 +27,7 @@ const userIdValidate = celebrate({
 const userInfoValidate = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(40),
-    about: Joi.string().min(2).max(200),
+    about: Joi.string().min(2).max(30),
     avatar: Joi.string().regex(regexLink),
   }),
 });
