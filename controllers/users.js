@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
-// const SECRET_KEY = require('../utils/constants');
+const SECRET_KEY = require('../utils/constants');
 
 const {
   Unauthorized,
@@ -15,7 +15,7 @@ const login = (req, res, next) => {
 
   User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, 'some-secret-key', {
+      const token = jwt.sign({ _id: user._id }, SECRET_KEY, {
         expiresIn: '7d',
       });
       res.send({ _id: token });
@@ -99,25 +99,25 @@ const getUserById = (req, res, next) => {
 };
 
 const createUser = (req, res, next) => {
-  const { name, about, avatar, email, password } = req.body;
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
   bcrypt
     .hash(password, 10)
-    .then((hash) =>
-      User.create({
-        name,
-        about,
-        avatar,
-        email,
-        password: hash,
-      })
-    )
+    .then((hash) => User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
+    }))
     .then((user) => res.status(201).send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return next(
           new InaccurateData(
-            'Переданы некорректные данные при создании пользователя'
-          )
+            'Переданы некорректные данные при создании пользователя',
+          ),
         );
       }
       if (err.code === 11000) {
@@ -138,14 +138,11 @@ const updateUser = (req, res, next) => {
     })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.message === 'NotFound') {
-        throw new NotFound('Пользователь по указанному _id не найден');
-      }
       if (err.name === 'ValidationError') {
         return next(
           new InaccurateData(
-            'Переданы некорректные данные при обновлении данных профиля пользователя'
-          )
+            'Переданы некорректные данные при обновлении данных профиля пользователя',
+          ),
         );
       }
       return next(err);
