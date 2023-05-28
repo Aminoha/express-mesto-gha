@@ -12,8 +12,8 @@ const signupValidate = celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required().min(6),
-    name: Joi.string().min(2).max(40),
-    about: Joi.string().min(2).max(200),
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
     avatar: Joi.string().regex(regexLink),
   }),
 });
@@ -26,8 +26,13 @@ const userIdValidate = celebrate({
 
 const userInfoValidate = celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(40),
+    name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
+  }),
+});
+
+const userAvatarValidate = celebrate({
+  body: Joi.object().keys({
     avatar: Joi.string().regex(regexLink),
   }),
 });
@@ -50,6 +55,7 @@ module.exports = {
   signupValidate,
   userIdValidate,
   userInfoValidate,
+  userAvatarValidate,
   cardValidate,
   cardIdValidate,
 };
