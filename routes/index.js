@@ -20,9 +20,10 @@ router.post('/signin', signinValidate, login);
 router.post('/signup', signupValidate, createUser);
 
 router.use(auth);
-router.use('*', auth, (req, res, next) => next(new NotFound('Ресурс не найден')));
 
 router.use('/users', userRouter);
 router.use('/cards', cardRouter);
+
+router.use('*', auth, (req, res, next) => next(new NotFound('Ресурс не найден')));
 
 module.exports = router;
